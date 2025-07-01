@@ -15,6 +15,12 @@ class LoginViewModelTest {
     private lateinit var viewModel: LoginViewModel
     private val dispatcher = StandardTestDispatcher()
 
+    private companion object {
+        const val INVALID_EMAIL = "email"
+        const val VALID_EMAIL = "email@yandex.ru"
+        const val VALID_PASSWORD = "password"
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp() {
@@ -43,10 +49,7 @@ class LoginViewModelTest {
 
     @Test
     fun `EmailValidationError on incorrect email`() = runTest(dispatcher) {
-        val actualEmail = "email"
-        val actualPassword = "password"
-
-        viewModel.login(actualEmail, actualPassword)
+        viewModel.login(INVALID_EMAIL, VALID_PASSWORD)
 
         dispatcher.scheduler.advanceUntilIdle()
         assertEquals(
@@ -56,10 +59,7 @@ class LoginViewModelTest {
 
     @Test
     fun `login state Loading on correct login`() = runTest(dispatcher) {
-        val actualEmail = "email@yandex.ru"
-        val actualPassword = "password"
-
-        viewModel.login(actualEmail, actualPassword)
+        viewModel.login(VALID_EMAIL, VALID_PASSWORD)
         dispatcher.scheduler.runCurrent()
 
         assertEquals(
@@ -69,10 +69,14 @@ class LoginViewModelTest {
 
     @Test
     fun `login state Success on correct login`() = runTest(dispatcher) {
-        val actualEmail = "email@yandex.ru"
-        val actualPassword = "password"
+        viewModel.login(VALID_EMAIL, VALID_PASSWORD)
 
-        viewModel.login(actualEmail, actualPassword)
+        dispatcher.scheduler.runCurrent()
+
+        assertEquals(
+            LoginScreenState.Loading, viewModel.state.value
+        )
+
         dispatcher.scheduler.advanceUntilIdle()
 
         assertEquals(
